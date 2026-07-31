@@ -46,16 +46,14 @@ returns.rename(
 # --------------------------------------------------
 # Create Return Score
 # --------------------------------------------------
-
-returns["Return Score"] = returns[
+returns = returns[
     [
-        "1M Return (%)",
-        "3M Return (%)",
-        "6M Return (%)",
-        "1Y Return (%)"
+        "Insurer",
+        "Fund Name",
+        "Return Score"
     ]
-].mean(axis=1)
-print(returns.head())
+]
+
 
 RISK_FILE = os.path.join(
     BASE_DIR,

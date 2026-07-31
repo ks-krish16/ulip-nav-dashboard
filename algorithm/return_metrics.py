@@ -8,6 +8,7 @@ from pandas.tseries.offsets import DateOffset
 INPUT_FILE = "Nav table.xlsx"
 OUTPUT_FOLDER = "output_result"
 
+
 os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 
 # -----------------------------
@@ -97,6 +98,73 @@ sheets = [s for s in excel.sheet_names if s.lower() != "nav master"]
 # -----------------------------
 # PROCESS EACH INSURER
 # -----------------------------
+# -----------------------------
+# READ EXCEL
+# -----------------------------
+excel = pd.ExcelFile(INPUT_FILE)
+
+# Ignore master sheet
+sheets = [
+    s
+    for s in excel.sheet_names
+    if s.lower() not in ["nav master", "lookup"]
+]
+# -----------------------------
+# READ LOOKUP TABLE
+# -----------------------------
+
+lookup = pd.read_excel(
+    INPUT_FILE,
+    sheet_name="Lookup"
+)
+
+lookup = lookup[
+    [
+        "Insurer",
+        "Fund Name",
+        "Category"
+    ]
+]
+
+lookup.rename(
+    columns={
+        "Insurer": "insurer_name",
+        "Fund Name": "fund_name"
+        
+    },
+    inplace=True)
+# Remove extra spaces
+lookup["insurer_name"] = lookup["insurer_name"].str.strip()
+lookup["fund_name"] = lookup["fund_name"].str.strip()
+
+# Make Tata insurer name consistent
+lookup["insurer_name"] = lookup["insurer_name"].replace({
+    "Tata AIA": "TATA AIA"
+})
+
+
+def get_broad_category(category):
+
+    category = str(category).lower()
+
+    if "equity" in category:
+        return "Equity"
+
+    elif "balanced" in category or "hybrid" in category:
+        return "Hybrid"
+
+    elif "debt" in category:
+        return "Debt"
+
+    elif "liquid" in category:
+        return "Liquid"
+
+    else:
+        return "Others"
+
+
+lookup["Broad Category"] = lookup["Category"].apply(get_broad_category)
+
 for sheet in sheets:
 
     print(f"\nProcessing {sheet}")
@@ -148,6 +216,121 @@ for sheet in sheets:
         
 
     result_df = pd.DataFrame(results)
+
+    # Remove extra spaces
+    result_df["insurer_name"] = result_df["insurer_name"].str.strip()
+    result_df["fund_name"] = result_df["fund_name"].str.strip()
+
+    # Make Tata insurer name consistent
+    result_df["insurer_name"] = result_df["insurer_name"].replace({
+        "Tata AIA": "TATA AIA"
+    })
+    # ==========================================================
+    # AVERAGE RETURN
+    # ==========================================================
+
+    result_df["Average Return"] = result_df[
+        [
+            "1M Return (%)",
+            "3M Return (%)",
+            "6M Return (%)",
+            "1Y Return (%)"
+        ]
+    ].mean(axis=1)
+
+    # ==========================================================
+    # MERGE CATEGORY
+    # ==========================================================
+
+    result_df = result_df.merge(
+
+        lookup[
+            [
+                "insurer_name",
+                "fund_name",
+                "Broad Category"
+            ]
+        ],
+
+        on=[
+            "insurer_name",
+            "fund_name"
+        ],
+
+        how="left"
+
+    )
+    # ==========================================================
+    # RETURN RANK
+    # ==========================================================
+
+    result_df["Return Rank"] = (
+
+        result_df.groupby(
+
+            [
+                "insurer_name",
+                "Broad Category"
+            ]
+
+        )["Average Return"]
+
+        .rank(
+
+            ascending=False,
+
+            method="dense"
+
+        )
+
+    )
+
+    # ==========================================================
+    # NUMBER OF FUNDS
+    # ==========================================================
+
+    result_df["Funds in Category"] = (
+
+        result_df.groupby(
+
+            [
+                "insurer_name",
+                "Broad Category"
+            ]
+
+        )["fund_name"]
+
+        .transform("count")
+
+    )
+ # ==========================================================
+    # RETURN SCORE
+    # ==========================================================
+
+    def calculate_score(rank, total):
+
+        if total <= 1:
+            return 100
+
+        return round(
+            ((total - rank) / (total - 1)) * 100,
+            2
+        )
+
+
+    result_df["Return Score"] = result_df.apply(
+
+        lambda x: calculate_score(
+
+            x["Return Rank"],
+
+            x["Funds in Category"]
+
+        ),
+
+        axis=1
+
+    )
 
     output_file = os.path.join(
         OUTPUT_FOLDER,
