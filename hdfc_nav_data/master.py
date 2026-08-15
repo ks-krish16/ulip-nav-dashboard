@@ -2,7 +2,7 @@ import requests
 import pandas as pd
 from datetime import datetime
 
-TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ5b3VyLXNlcnZpY2UiLCJleHAiOjE3ODQ2NjIzMjksInNjb3BlIjoicmVhZDphcGkifQ.C_JpTb6l9XhiO1FLP3EW8GsQjuuZiRyR1FjWH2mixKA"
+TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ5b3VyLXNlcnZpY2UiLCJleHAiOjE3ODY3ODMzOTUsInNjb3BlIjoicmVhZDphcGkifQ.PPz4eHiwcdbc7WNlMuVhVAogbeA0PZQ0DYiLd961r8Y"
 DEVICE_ID = "c7096699-4688-40cf-a4ac-6b381f67486f"
 
 HEADERS = {
@@ -23,8 +23,8 @@ PRODUCTS = {
     96: "SmartProtectPlus",
 }
 
-FROM_DATE = "2025-07-21"
-TO_DATE   = "2026-07-21"
+FROM_DATE = "2025-07-31"
+TO_DATE   = "2026-07-31"
 
 all_data = []
 
@@ -89,7 +89,7 @@ final = final[
     ]
 ]
 
-final.to_excel("HDFC_Life_NAV_2025_2026.xlsx", index=False)
+final.to_excel("HDFC_Life_NAV_2025_2026(1).xlsx", index=False)
 
 print(final.head())
 print(f"\nRows downloaded: {len(final)}")

@@ -212,6 +212,7 @@ for sheet in sheets:
             "1Y Return (%)": calculate_return(group, years=1),
 
         }
+        
         )
         
 
@@ -237,6 +238,15 @@ for sheet in sheets:
             "1Y Return (%)"
         ]
     ].mean(axis=1)
+    print(result_df[
+    [
+        "1M Return (%)",
+        "3M Return (%)",
+        "6M Return (%)",
+        "1Y Return (%)",
+        "Average Return"
+    ]
+    ].head())
 
     # ==========================================================
     # MERGE CATEGORY
@@ -258,8 +268,12 @@ for sheet in sheets:
         ],
 
         how="left"
+        
 
     )
+    print(result_df[["insurer_name","fund_name"]].head())
+    print(lookup[["insurer_name","fund_name"]].head())
+    print(result_df["Broad Category"].isna().sum())
     # ==========================================================
     # RETURN RANK
     # ==========================================================
@@ -334,7 +348,7 @@ for sheet in sheets:
 
     output_file = os.path.join(
         OUTPUT_FOLDER,
-        f"{sheet}_Return_Metrics.xlsx"
+        f"{sheet}_Return_Metrics2.xlsx"
     )
 
     result_df.to_excel(output_file, index=False)

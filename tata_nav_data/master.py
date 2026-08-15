@@ -4,7 +4,7 @@ from pathlib import Path
 # =====================================
 # CHANGE THIS TO YOUR CSV FOLDER
 # =====================================
-folder = Path(r"D:\work\A POP project\tata_nav_data")
+folder = Path(r"D:\work\Testing\tata aia")
 
 all_data = []
 
@@ -26,7 +26,7 @@ for csv_file in folder.glob("*.csv"):
         df["insurer name"] = "TATA AIA"
 
         # Fund name from filename
-        fund_name = csv_file.stem.replace("_", " ").title() + " Fund"
+        fund_name = csv_file.stem.replace("_", " ").title() 
         df["fund name"] = fund_name
 
         # Keep only required columns

@@ -16,7 +16,10 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 excel = pd.ExcelFile(INPUT_FILE)
 
 # Ignore master sheet
-sheets = [s for s in excel.sheet_names if s.lower() != "nav master"]
+sheets = [
+    s for s in excel.sheet_names
+    if s.lower() not in ["nav master", "lookup"]
+]
 
 # -----------------------------
 # STORE SUMMARY OF ALL INSURERS
@@ -24,7 +27,7 @@ sheets = [s for s in excel.sheet_names if s.lower() != "nav master"]
 summary_results = []
 
 # -----------------------------
-# PROCESS EACH INSURER
+# PROCESS EACH INSURERa
 # -----------------------------
 for sheet in sheets:
 
